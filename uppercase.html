@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8" />
+  <title>UpperCase Plugin</title>
+  <script src="http://orionhub.org/orion/plugin.js"></script>
+  <script>
+  window.onload = function() {
+      var headers = {name: "ToUpperCase", version: "1.0", description: "My Orion plugin."};
+      var provider = new orion.PluginProvider(headers);
+      var serviceImpl = {
+              run: function(text) {
+                  return text.toUpperCase();
+              }
+          };
+      var serviceProperties = { 
+              name: "UpperCase",
+              key: ["e", true, true] // Ctrl+Shift+e
+          };
+      provider.registerService("orion.edit.command", serviceImpl, serviceProperties);
+      provider.connect();
+  };
+</script>
+</head>
+<body></body>
+</html>

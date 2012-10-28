@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8" />
+  <title>AutoFormat</title>
+  <script src="http://orionhub.org/orion/plugin.js"></script>
+  <script>
+  window.onload = function() {
+      var headers = {name: "AutoFormat", version: "1.0", description: "My Orion plugin."};
+      var provider = new orion.PluginProvider(headers);
+      var serviceImpl = {
+              run: function(text) {
+                  alert("...i kurde brakło czasu :D\nMoże innym razem");
+              }
+          };
+      var serviceProperties = { 
+              name: "AutoFormat",
+              key: ["e", true, true] // Ctrl+Shift+e
+          };
+      provider.registerService("orion.edit.command", serviceImpl, serviceProperties);
+      provider.connect();
+  };
+</script>
+</head>
+<body></body>
+</html>

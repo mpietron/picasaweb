@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8" />
+<title>Reverse Plugin</title>
+<script src="http://orionhub.org/orion/plugin.js"></script>
+<script src="http://code.jquery.com/jquery-1.8.2.min.js"></script>
+<script>
+  /*******************************************************************************
+ * Copyright (c) 2012 Michał Pietroń Corporation and others.
+ * All rights reserved. This program and the accompanying materials are made 
+ * available under the terms of the Eclipse Public License v1.0 
+ * (http://www.eclipse.org/legal/epl-v10.html), and the Eclipse Distribution 
+ * License v1.0 (http://www.eclipse.org/org/documents/edl-v10.html). 
+ *
+ *******************************************************************************/
+/*jslint forin:true regexp:false*/
+/*global define document require window eclipse orion*/
+
+
+  var defer = new jQuery.Deferred();
+  window.onload = function() {
+      var headers = {name: "PicasaWebAlbum Plugin", version: "1.0", description: "Import PicasaWeb album"};
+      var provider = new orion.PluginProvider(headers);
+      
+      var serviceImpl = {
+              run: function(text) {
+              	var albumname;
+      			var btext = text.split(",");
+				var username = btext[0];
+      			var albumname = btext[1];
+      			var userex = 0;
+      			var albumex = 0;
+      			
+      			var jsonQuery = $.getJSON("https://picasaweb.google.com/data/feed/api/user/"+username,{
+    				kind: "album",
+    				alt: "json"
+  					},
+  					function(data) {
+  						userex = 1;
+    					$.each(data.feed.entry, function(i,entry){
+    						if(entry.title.$t==albumname){
+    							albumex = 1;
+    							idalbumu = entry.gphoto$id.$t;
+    							iduser = entry.gphoto$user.$t;
+    							defer.resolve(data);
+    							console.log("Album OK");
+    						}    
+    					}); //end each
+	
+    					if(albumex == 0) {
+    						console.log("Album NOK");
+    						alert("Użytkownik "+username+" nie ma albumu "+albumname+". ");
+    						idalbumu=0;
+    					}
+    	  			});
+  				jsonQuery.error(function(){
+  					console.log("User NOK");
+  					alert("Nie ma użytkownika "+username+".");
+  					idalbumu=0;
+  					
+  				});
+  				jsonQuery.complete(function(data){
+  					return defer.promise();
+  				});
+  				
+      			
+      			defer.then(function(data){
+      			defer.resolve(data);
+      				return defer.promise();
+      				return text.replace(username+","+albumname, "<embed type=\"application/x-shockwave-flash\" src=\"https://picasaweb.google.com/s/c/bin/slideshow.swf\" width=\"800\" height=\"533\" flashvars=\"host=picasaweb.google.com&hl=pl&feat=flashalbum&RGB=0x000000&feed=https%3A%2F%2Fpicasaweb.google.com%2Fdata%2Ffeed%2Fapi%2Fuser%2F"+iduser+"%2Falbumid%2F"+idalbumu+"%3Falt%3Drss%26kind%3Dphoto%26hl%3Dpl\" pluginspage=\"http://www.macromedia.com/go/getflashplayer\"><\/embed>");
+      			});
+ 				
+ 				
+  				if(idalbumu>0)
+  				{
+  					return text.replace(username+","+albumname, "<embed type=\"application/x-shockwave-flash\" src=\"https://picasaweb.google.com/s/c/bin/slideshow.swf\" width=\"800\" height=\"533\" flashvars=\"host=picasaweb.google.com&hl=pl&feat=flashalbum&RGB=0x000000&feed=https%3A%2F%2Fpicasaweb.google.com%2Fdata%2Ffeed%2Fapi%2Fuser%2F"+iduser+"%2Falbumid%2F"+idalbumu+"%3Falt%3Drss%26kind%3Dphoto%26hl%3Dpl\" pluginspage=\"http://www.macromedia.com/go/getflashplayer\"><\/embed>");
+      			}
+  				
+      			
+      			
+              }
+              
+          };
+      			
+      var serviceProperties = { 
+              name: "PicasaWeb",
+              key: ["e", true, true] // Ctrl+Shift+e
+          };
+      provider.registerService("orion.edit.command", serviceImpl, serviceProperties);
+      provider.connect();
+  };
+  
+</script>
+</head>
+<body></body>
+</html>
